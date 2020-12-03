@@ -14,30 +14,6 @@ class DataTable {
         $this->accepted_columns = $columns;
     }
 
-    public function get_columns() {
-        return $this->response->columns;
-    }
-
-    public function get_order() {
-        return $this->response->order;
-    }
-
-    public function get_search() {
-        return $this->response->search;
-    }
-
-    public function get_draw() {
-        return $this->response->draw;
-    }
-
-    public function get_start() {
-        return $this->response->start;
-    }
-
-    public function get_length() {
-        return $this->response->length;
-    }
-
     public function process($data) {
 
         $this->response = new \StdClass();

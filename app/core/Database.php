@@ -142,22 +142,6 @@ class Database {
         return self::$database->query("INSERT INTO `{$table}` ({$parameters_string}) VALUES ({$values_string})");
     }
 
-    public static function insert_wp($table, $data = [], $clean = true) {
-
-        $parameters = [];
-        $values = [];
-
-        foreach($data as $key => $value) {
-            $parameters[] = $key;
-            $values[] = $value;
-        }
-
-        $parameters_string = '`' . implode('`, `', $parameters) . '`';
-        $values_string = '\'' . implode('\', \'', $values) . '\'';
-
-        return self::$database->query("INSERT INTO `{$table}` ({$parameters_string}) VALUES ({$values_string})");
-    }
-
     public static function clean_string($data) {
         return self::$database->escape_string(filter_var($data, FILTER_SANITIZE_STRING));
     }

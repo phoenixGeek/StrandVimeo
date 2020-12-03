@@ -11,23 +11,7 @@
                 <ol class="custom-breadcrumbs">
                     <li><a href="<?= url('dashboard') ?>"><?= $this->language->dashboard->breadcrumb ?></a> <i class="fa fa-fw fa-angle-right"></i></li>
                     <li><a href="<?= url('project/' . $data->link->project_id) ?>"><?= $this->language->project->breadcrumb ?></a> <i class="fa fa-fw fa-angle-right"></i></li>
-                    <li>
-                        <?php if($data->link->type == 'biolink'): ?>
-                            <a href="<?= url('link/' . $data->link->link_id) ?>"><?= $this->language->link->breadcrumb_biolink ?></a> <i class="fa fa-fw fa-angle-right"></i>
-                        <?php elseif($data->link->type == 'link'): ?>
-                            <a href="<?= url('link/' . $data->link->link_id) ?>"><?= $this->language->link->breadcrumb_link ?></a> <i class="fa fa-fw fa-angle-right"></i>
-                        <?php endif ?>
-                    </li>
-
-                    <?php if($data->link->type == 'biolink' && $data->link->subtype != 'base'): ?>
-                        <li><?= $this->language->link->breadcrumb_link ?> <i class="fa fa-fw fa-angle-right"></i></li>
-                    <?php endif ?>
-
-                    <?php if($data->method == 'settings'): ?>
-                        <li class="active" aria-current="page"><?= $this->language->link->settings->breadcrumb ?></li>
-                    <?php elseif($data->method == 'statistics'): ?>
-                        <li class="active" aria-current="page"><?= $this->language->link->statistics->breadcrumb ?></li>
-                    <?php endif ?>
+                    <li><a href="<?= url('link/' . $data->link->link_id) ."?tab=links" ?>"><?= $this->language->link->breadcrumb_biolink ?></a></li>
                 </ol>
             </small>
         </nav>
@@ -40,40 +24,14 @@
                     <h1 id="link_url" class="h3 mr-3"><?= sprintf($this->language->link->header->header, $data->link->url) ?></h1>
                 <?php endif ?>
 
-                <div class="custom-control custom-switch mr-3" data-toggle="tooltip" title="<?= $this->language->project->links->is_enabled_tooltip ?>">
-                    <input
-                            type="checkbox"
-                            class="custom-control-input"
-                            id="link_is_enabled_<?= $data->link->link_id ?>"
-                            data-row-id="<?= $data->link->link_id ?>"
-                            onchange="ajax_call_helper(event, 'link-ajax', 'is_enabled_toggle')"
-                        <?= $data->link->is_enabled ? 'checked="true"' : null ?>
-                    >
-                    <label class="custom-control-label clickable" for="link_is_enabled_<?= $data->link->link_id ?>"></label>
-                </div>
-
                 <div class="dropdown">
                     <a href="#" data-toggle="dropdown" class="text-secondary dropdown-toggle dropdown-toggle-simple">
                         <i class="fa fa-ellipsis-v"></i>
-
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a href="<?= url('link/' . $data->link->link_id) ?>" class="dropdown-item"><i class="fa fa-fw fa-pencil-alt"></i> <?= $this->language->global->edit ?></a>
-
-                            <a href="<?= $data->link->full_url . '/qr' ?>" target="_blank" class="dropdown-item"><i class="fa fa-fw fa-qrcode"></i> <?= $this->language->link->qr->link ?></a>
                             <a href="#" class="dropdown-item" data-delete="<?= $this->language->global->info_message->confirm_delete ?>" data-row-id="<?= $data->link->link_id ?>"><i class="fa fa-fw fa-times"></i> <?= $this->language->global->delete ?></a>
                         </div>
                     </a>
                 </div>
-            </div>
-
-            <div class="d-none d-md-block">
-                <?php if(($data->link->type == 'biolink' && $data->link->subtype == 'base') || $data->link->type == 'link'): ?>
-
-
-                    <?php if($data->method != 'settings'): ?>
-                        <a href="<?= url('link/' . $data->link->link_id . '/settings') ?>" class="btn btn-secondary rounded-pill mr-3"><i class="fa fa-fw fa-cogs"></i> <?= $this->language->link->settings->link ?></a>
-                    <?php endif ?>
-                <?php endif ?>
             </div>
         </div>
 

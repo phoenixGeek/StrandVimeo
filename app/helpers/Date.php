@@ -122,42 +122,6 @@ class Date {
 
     }
 
-    /* Helper to generate start_date and end_date for datepicker */
-    public static function get_start_end_dates($start_date, $end_date) {
-
-        $return = new \StdClass();
-
-        /* Date selection for the notification logs */
-        if($start_date && $end_date && (self::validate($start_date, 'Y-m-d') || self::validate($start_date, 'Y-m-d H:i:s')) && (self::validate($end_date, 'Y-m-d') || self::validate($end_date, 'Y-m-d H:i:s'))) {
-            $return->start_date = $start_date;
-            $return->start_date_query = (new \DateTime($start_date))->format('Y-m-d H:i:s');
-            $return->end_date = $end_date;
-            $return->end_date_query = (new \DateTime($end_date))->modify('+1 day')->format('Y-m-d H:i:s');
-        } else {
-            $return->start_date_query = (new \DateTime())->modify('-30 day')->format('Y-m-d H:i:s');
-            $return->start_date = (new \DateTime())->modify('-30 day')->format('Y-m-d');
-            $return->end_date_query = (new \DateTime())->modify('+1 day')->format('Y-m-d H:i:s');
-            $return->end_date = (new \DateTime())->modify('+1 day')->format('Y-m-d');
-        }
-
-        $return->input_date_range = $return->start_date . ',' . $return->end_date;
-
-        return $return;
-    }
-
-    /* Seconds to his */
-    public static function get_seconds_to_his($seconds) {
-        $hours = floor($seconds / 3600);
-        $minutes = floor(($seconds / 60) % 60);
-        $seconds = $seconds % 60;
-
-        return sprintf(
-            Language::get()->global->date->datetime_his_format,
-            $hours,
-            $minutes,
-            $seconds
-        );
-    }
 
     /* Helper to have the timeago from one point to now */
     public static function get_timeago($date) {
@@ -195,46 +159,4 @@ class Date {
         }
     }
 
-    /* Helper to have the time left from now to one point in time */
-    public static function get_time_until($date) {
-
-        $estimate_time = (new \DateTime($date))->getTimestamp() - time();
-
-        if($estimate_time < 1) {
-            return Language::get()->global->date->now;
-        }
-
-        $condition = [
-            12 * 30 * 24 * 60 * 60  =>  'year',
-            30 * 24 * 60 * 60       =>  'month',
-            24 * 60 * 60            =>  'day',
-            60 * 60                 =>  'hour',
-            60                      =>  'minute',
-            1                       =>  'second'
-        ];
-
-        foreach($condition as $secs => $str) {
-            $d = $estimate_time / $secs;
-
-            if($d >= 1) {
-                $r = round($d);
-
-                /* Determine the language string needed */
-                $language_string_time = $r > 1 ? Language::get()->global->date->{$str . 's'} : Language::get()->global->date->{$str};
-
-                return sprintf(
-                    Language::get()->global->date->time_until,
-                    $r,
-                    $language_string_time
-                );
-            }
-        }
-    }
-
-    public static function check_temp_expiration($current_date, $db_date) {
-
-        $interval_time = (new \DateTime($current_date))->getTimestamp() - (new \DateTime($db_date))->getTimestamp();
-
-        return $interval_time;
-    }
 }

@@ -30,14 +30,17 @@ class Router {
 
         '' => [
             'index' => [
-                'controller' => 'Index'
+                'controller' => 'Dashboard',
+                'settings' => [
+                    'menu_no_margin' => true,
+                    'body_white' => false
+                ]
             ],
 
             'notfound' => [
                 'controller' => 'NotFound'
             ],
 
-            /* Logged in */
             'dashboard' => [
                 'controller' => 'Dashboard',
                 'settings' => [
@@ -62,7 +65,6 @@ class Router {
                 ]
             ],
 
-            /* Ajax */
             'project-ajax' => [
                 'controller' => 'ProjectAjax'
             ],

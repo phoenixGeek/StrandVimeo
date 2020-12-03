@@ -34,7 +34,7 @@ class Link extends Controller {
                 if($this->link->type == 'biolink') {
                     
                     /* Get the links available for the biolink */
-                    $link_links_result = $this->database->query("SELECT * FROM `links` WHERE `biolink_id` = 1 AND `subtype` != 'tawkchat' ORDER BY `order` ASC");
+                    $link_links_result = $this->database->query("SELECT * FROM `links` WHERE `biolink_id` = {$this->link->link_id} ORDER BY `order` ASC");
 
                     $biolink_link_types = require APP_PATH . 'includes/biolink_link_types.php';
 

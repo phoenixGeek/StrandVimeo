@@ -15,7 +15,7 @@ class View {
         $this->view = $view;
         $this->view_path = THEME_PATH . 'views/' . $view . '.php';
 
-        var_dump($this->view_path);
+        // var_dump($this->view_path);
         $this->add_params($params);
 
     }

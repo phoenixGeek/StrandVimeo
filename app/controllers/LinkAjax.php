@@ -48,23 +48,7 @@ class LinkAjax extends Controller {
       
                     $_POST['subtype'] = trim(Database::clean_string($_POST['subtype']));
 
-                    if($_POST['subtype'] == 'link') {
-                        $this->create_biolink_link();
-                    } else if($_POST['subtype'] == 'mail') {
-                        $this->create_biolink_mail();
-                    } else if($_POST['subtype'] == 'text') {
-                        $this->create_biolink_text();
-                    } else if($_POST['subtype'] == 'link_affiliate') {
-                        $this->create_link_affiliate();
-                    } else if($_POST['subtype'] == 'pdf') {
-                        $this->create_biolink_pdf();
-                    } else if($_POST['subtype'] == 'tawkchat') {
-                        $this->create_biolink_tawkchat();
-                    } else if($_POST['subtype'] == 'youtube_live') {
-                        $this->create_biolink_youtube_live();
-                    } else {
                         $this->create_biolink_other($_POST['subtype']);
-                    }
 
                 } else {
                     /* Base biolink */
@@ -87,11 +71,6 @@ class LinkAjax extends Controller {
             die();
         }
 
-        $affiliate_id = Database::simple_get('affiliate_id', 'users', ['user_id' => 1]);
-
-        /* Make sure that the user didn't exceed the limit */
-        $user_total_biolinks = Database::$database->query("SELECT COUNT(*) AS `total` FROM `links` WHERE `user_id` = 1 AND `type` = 'biolink' AND `subtype` = 'base'")->fetch_object()->total;
-
         /* Check for duplicate url if needed */
         if($_POST['url']) {
             if(Database::exists('link_id', 'links', ['url' => $_POST['url']])) {
@@ -103,21 +82,10 @@ class LinkAjax extends Controller {
         $url = $_POST['url'] ? $_POST['url'] : string_generate(10);
         $type = 'biolink';
         $subtype = 'base';
-        // $affiliate_url = "https://linkinbio.xyz/";
 
-        if($affiliate_id == null) {
+        $binding_name = url();
+        $binding_url = url();
 
-            $affiliate_url = "https://linkinbio.xyz";
-            $affiliate_name = "https://linkinbio.xyz";
-            
-        } else {
-
-            $affiliate_url = "https://linkinbio.xyz/?free=" .$affiliate_id;
-            $affiliate_name = "https://linkinbio.xyz/?free=" .$affiliate_id;
-        }
-
-        // $affiliate_url = "https://linkinbio.xyz/?free=" .$affiliate_id;
-        // $affiliate_name = "https://linkinbio.xyz/?free=" .$affiliate_id;
         $settings = json_encode([
             'title' => $this->language->link->biolink->title_default,
             'description' => $this->language->link->biolink->description_default,
@@ -131,8 +99,8 @@ class LinkAjax extends Controller {
             'facebook_pixel' => '',
             'display_branding' => true,
             'branding' => [
-                'url' => $affiliate_url,
-                'name' => $affiliate_name
+                'url' => $binding_url,
+                'name' => $binding_name
             ],
             'seo' => [
                 'title' => '',
@@ -163,34 +131,7 @@ class LinkAjax extends Controller {
         $link_id = $stmt->insert_id;
         $stmt->close();
 
-        /* Insert a first biolink link */
-        $url = string_generate(10);
-        // $location_url = url();
-        $location_url = $affiliate_url;
-        $type = 'biolink';
-        $subtype = 'link';
-        $settings = json_encode([
-            'name' => $name,
-            'text_color' => 'black',
-            'background_color' => 'white',
-            'outline' => false,
-            'border_radius' => 'rounded',
-            'animation' => false,
-            'animation_duration' => '2s',
-            'icon' => ''
-        ]);
-
-        /* Generate random url if not specified */
-        while(Database::exists('link_id', 'links', ['url' => $url])) {
-            $url = string_generate(10);
-        }
-
-        $stmt = Database::$database->prepare("INSERT INTO `links` (`project_id`, `biolink_id`, `user_id`, `type`, `subtype`, `url`, `location_url`, `settings`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('sssssssss', $_POST['project_id'], $link_id, $user_id, $type, $subtype, $url, $location_url, $settings, \Altum\Date::$date);
-        $stmt->execute();
-        $stmt->close();
-
-        Response::json('', 'success', ['url' => url('link/' . $link_id)]);
+        Response::json('', 'success', ['url' => url('link/' . $link_id). '?tab=links']);
     }
 
     private function create_biolink_link() {
@@ -312,10 +253,6 @@ class LinkAjax extends Controller {
                 Response::json($this->language->link->error_message->blacklisted_url, 'error');
             }
 
-            /* Make sure the custom url is not blacklisted */
-            if(in_array($url, explode(',', $this->settings->links->blacklisted_keywords))) {
-                Response::json($this->language->link->error_message->blacklisted_keyword, 'error');
-            }
 
         }
 
@@ -334,18 +271,6 @@ class LinkAjax extends Controller {
             Response::json($this->language->link->error_message->invalid_location_url, 'error');
         }
 
-        /* Check the url with phishtank to make sure its not a phishing site */
-        if($this->settings->links->phishtank_is_enabled) {
-            if(phishtank_check($url, $this->settings->links->phishtank_api_key)) {
-                Response::json($this->language->link->error_message->blacklisted_location_url, 'error');
-            }
-        }
 
-        /* Check the url with google safe browsing to make sure it is a safe website */
-        if($this->settings->links->google_safe_browsing_is_enabled) {
-            if(google_safe_browsing_check($url, $this->settings->links->google_safe_browsing_api_key)) {
-                Response::json($this->language->link->error_message->blacklisted_location_url, 'error');
-            }
-        }
     }
 }

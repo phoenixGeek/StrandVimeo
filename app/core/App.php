@@ -16,8 +16,6 @@ class App {
         /* Connect to the database */
         $this->database = Database\Database::initialize();
 
-        /* Initialize caching system */
-
         /* Parse the URL parameters */
         Router::parse_url();
 
@@ -43,19 +41,12 @@ class App {
             if($_SERVER['REQUEST_METHOD'] == 'OPTIONS') die();
         }
 
-        /* Get the website settings */
-        $settings = (new Settings())->get();
-
         /* Initiate the Language system */
-        Language::initialize(APP_PATH . 'languages/', $settings->default_language);
+        Language::initialize(APP_PATH . 'languages/', "english");
 
         /* Get the needed language strings */
         $language = Language::get();
 
-        /* Initiate the Title system */
-        Title::initialize($settings->title);
-
-        /* Set the date timezone */
         date_default_timezone_set(Date::$default_timezone);
         Date::$timezone = date_default_timezone_get();
 
@@ -66,7 +57,6 @@ class App {
         $controller->add_params([
             'database'  => $this->database,
             'params'    => $params,
-            'settings'  => $settings,
             'language'  => $language,
 
             /* Potential logged in user */

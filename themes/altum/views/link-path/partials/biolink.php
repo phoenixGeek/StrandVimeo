@@ -5,7 +5,6 @@
         <div class="row d-flex justify-content-center text-center">
             <div class="col-md-8 link-content">
 
-                <?php require THEME_PATH . 'views/partials/ads_header_biolink.php' ?>
    
                 <header class="d-flex flex-column align-items-center" style="<?= $data->link->design->text_style ?>">
 
@@ -32,12 +31,12 @@
 
                             /* Check if its a scheduled link and we should show it or not */
                             if(
-                                    !empty($row->start_date) &&
-                                    !empty($row->end_date) &&
-                                    (
-                                        \Altum\Date::get('', null) < \Altum\Date::get($row->start_date, null, \Altum\Date::$default_timezone) ||
-                                        \Altum\Date::get('', null) > \Altum\Date::get($row->end_date, null, \Altum\Date::$default_timezone)
-                                    )
+                                !empty($row->start_date) &&
+                                !empty($row->end_date) &&
+                                (
+                                    \Altum\Date::get('', null) < \Altum\Date::get($row->start_date, null, \Altum\Date::$default_timezone) ||
+                                    \Altum\Date::get('', null) > \Altum\Date::get($row->end_date, null, \Altum\Date::$default_timezone)
+                                )
                             ) {
                                 continue;
                             }
@@ -49,24 +48,6 @@
                             <div data-link-id="<?= $row->link_id ?>">
                                 <?= \Altum\Link::get_biolink_link($row, $data->user) ?? null ?>
                             </div>
-                            <?php if(($row->subtype === 'tawkchat') && $row->settings): ?>
-                                <?php
-
-                                    $widget_code = $row->settings;
-            
-                                    $pattern1 = 'var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();';
-                                    $pattern2 = 'var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];';
-                                    $pattern3 = 's1.async=true;';
-                                    $pattern4 = "s1.charset='UTF-8';";
-                                    $pattern5 = "s1.setAttribute('crossorigin','*');";
-                                    $pattern6 = "s0.parentNode.insertBefore(s1,s0);";
-            
-                                    if(strpos($widget_code, $pattern1) && strpos($widget_code, $pattern2) && strpos($widget_code, $pattern3) && strpos($widget_code, $pattern4) && strpos($widget_code, $pattern5) && strpos($widget_code, $pattern6)) {
-            
-                                        echo $row->settings;
-                                    }
-                                ?>
-                            <?php endif;?>
 
                         <?php endforeach ?>
                     <?php endif ?>
@@ -93,23 +74,6 @@
 
                 </main>
 
-                <?php require THEME_PATH . 'views/partials/ads_footer_biolink.php' ?>
-
-                <footer class="link-footer">
-                    <?php if($data->link->settings->display_branding): ?>
-                        <?php 
-                            $affiliate_id = $data->user->affiliate_id;
-                            $affiliate_url = "https://linkinbio.xyz/?free=" .$affiliate_id;
-                            $affiliate_name = "https://linkinbio.xyz/?free=" .$affiliate_id;
-                        ?>
-                        <?php if($affiliate_id !== null): ?>
-                            <a id="branding" href="<?= $affiliate_url ? $affiliate_url : '#' ?>" style="<?= $data->link->design->text_style ?>"><?= \Altum\Language::get()->link->branding ?></a>
-                        <?php else: ?>
-                            <a id="branding" href="<?= url() ?>" style="<?= $data->link->design->text_style ?>"><?= \Altum\Language::get()->link->branding ?></a>
-                        <?php endif ?>
-                    <?php endif ?>
-                </footer>
-
             </div>
         </div>
     </div>
@@ -132,66 +96,7 @@
 <?php \Altum\Event::add_content(ob_get_clean(), 'javascript') ?>
 
 <?php ob_start() ?>
-<script>
-    /* Go over all mail buttons to make sure the user can still submit mail */
-    $('form[id^="mail_"]').each((index, element) => {
-        let link_id = $(element).find('input[name="link_id"]').val();
-        let is_converted = localStorage.getItem(`mail_${link_id}`);
 
-        if(is_converted) {
-            /* Set the submit button to disabled */
-            $(element).find('button[type="submit"]').attr('disabled', 'disabled');
-        }
-    });
-        /* Form handling for mail submissions if any */
-    $('form[id^="mail_"]').on('submit', event => {
-        let base_url = $('[name="url"]').val();
-        let link_id = $(event.currentTarget).find('input[name="link_id"]').val();
-        let is_converted = localStorage.getItem(`mail_${link_id}`);
-
-        if(!is_converted) {
-
-            $.ajax({
-                type: 'POST',
-                url: `${base_url}link-ajax`,
-                data: $(event.currentTarget).serialize(),
-                success: (data) => {
-                    let notification_container = $(event.currentTarget).find('.notification-container');
-
-                    if (data.status == 'error') {
-                        notification_container.html('');
-
-                        display_notifications(data.message, 'error', notification_container);
-                    } else if (data.status == 'success') {
-
-                        display_notifications(data.message, 'success', notification_container);
-
-                        setTimeout(() => {
-
-                            /* Hide modal */
-                            $(event.currentTarget).closest('.modal').modal('hide');
-
-                            /* Remove the notification */
-                            notification_container.html('');
-
-                            /* Set the localstorage to mention that the user was converted */
-                            localStorage.setItem(`mail_${link_id}`, true);
-
-                            /* Set the submit button to disabled */
-                            $(event.currentTarget).find('button[type="submit"]').attr('disabled', 'disabled');
-
-                        }, 1000);
-
-                    }
-                },
-                dataType: 'json'
-            });
-
-        }
-
-        event.preventDefault();
-    })
-</script>
 <?php \Altum\Event::add_content(ob_get_clean(), 'javascript') ?>
 
 <?php if($data->user->package_settings->google_analytics && !empty($data->link->settings->google_analytics)): ?>

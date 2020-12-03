@@ -42,50 +42,6 @@ class Project extends Controller {
             $links_logs[] = $row;
         }
 
-        /* Get statistics */
-        if(count($links_logs)) {
-            $logs_chart = [];
-            $start_date_query = (new \DateTime())->modify('-30 day')->format('Y-m-d H:i:s');
-            $end_date_query = (new \DateTime())->modify('+1 day')->format('Y-m-d H:i:s');
-            $project_ids = implode(', ', array_unique(array_map(function($row) {
-                return (int) $row->link_id;
-            }, $links_logs)));
-
-            $logs_result = Database::$database->query("
-                SELECT
-                     `count`,
-                     DATE_FORMAT(`date`, '%Y-%m-%d') AS `formatted_date`
-                FROM
-                     `track_links`
-                WHERE
-                    `link_id` IN ({$project_ids})
-                    AND (`date` BETWEEN '{$start_date_query}' AND '{$end_date_query}')
-                ORDER BY
-                    `formatted_date`
-            ");
-
-            /* Generate the raw chart data and save logs for later usage */
-            while($row = $logs_result->fetch_object()) {
-                $logs[] = $row;
-
-                $row->formatted_date = \Altum\Date::get($row->formatted_date, 4);
-
-                /* Handle if the date key is not already set */
-                if (!array_key_exists($row->formatted_date, $logs_chart)) {
-                    $logs_chart[$row->formatted_date] = [
-                        'impressions' => 0,
-                        'uniques' => 0,
-                    ];
-                }
-
-                /* Distribute the data from the database row */
-                $logs_chart[$row->formatted_date]['uniques']++;
-                $logs_chart[$row->formatted_date]['impressions'] += $row->count;
-            }
-
-            $logs_chart = get_chart_data($logs_chart);
-        }
-
         /* Create Link Modal */
         $domains = "minibio.link";
 
@@ -102,7 +58,6 @@ class Project extends Controller {
             'project'        => $project,
             'domains'        => $domains,
             'links_logs'     => $links_logs,
-            'logs_chart'     => $logs_chart ?? false,
         ];
 
         $view = new \Altum\Views\View('project/index', (array) $this);

@@ -109,34 +109,6 @@ class Link extends Controller {
 
             /* Insert or update the log */
             $is_insert = true;
-            $stmt = Database::$database->prepare("
-                INSERT INTO 
-                    `track_links` (`link_id`, `dynamic_id`, `ip`, `country_code`, `os_name`, `browser_name`, `referrer`, `device_type`, `browser_language`, `date`, `last_date`) 
-                VALUES 
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                    `count` = `count` + 1,
-                    `last_date` = VALUES (last_date)  
-            ");
-            $stmt->bind_param(
-                'sssssssssss',
-                $this->link->link_id,
-                $dynamic_id,
-                $_SERVER['REMOTE_ADDR'],
-                $country_code,
-                $os_name,
-                $browser_name,
-                $referrer,
-                $device_type,
-                $browser_language,
-                Date::$date,
-                Date::$date
-            );
-            $stmt->execute();
-            if($stmt->affected_rows > 1) {
-                $is_insert = false;
-            }
-            $stmt->close();
 
             /* Add the unique hit to the link table as well */
             if ($is_insert) {
@@ -146,15 +118,10 @@ class Link extends Controller {
 
         /* Check what to do next */
         if($this->link->type == 'biolink' && $this->link->subtype == 'base') {
-
             $this->process_biolink();
-
         } else {
-
             $this->process_redirect();
-
         }
-
     }
 
     public function process_biolink() {

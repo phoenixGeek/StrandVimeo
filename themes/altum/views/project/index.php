@@ -1,5 +1,17 @@
 <?php defined('ALTUMCODE') || die() ?>
 
+<header class="header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <small>
+                <ol class="custom-breadcrumbs">
+                    <li><a href="<?= url('dashboard') ?>"><?= $this->language->dashboard->breadcrumb ?></a> <i class="fa fa-fw fa-angle-right"></i></li>
+                    <li class="active" aria-current="page"><?= $this->language->project->breadcrumb ?></li>
+                </ol>
+            </small>
+        </nav>
+    </div>
+</header>
 
 <section class="container">
 
@@ -7,27 +19,10 @@
         <h2 class="h4"><?= $this->language->project->links->header ?> </h2>
 
         <div class="col-auto p-0">
-            <?php if($this->settings->links->shortener_is_enabled): ?>
-                <div class="dropdown">
-                    <button type="button" data-toggle="dropdown" class="btn btn-primary rounded-pill dropdown-toggle dropdown-toggle-simple">
-                        <i class="fa fa-plus-circle"></i> <?= $this->language->project->links->create ?>
-                    </button>
 
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a href="#" class="dropdown-item" data-toggle="modal" data-target="#create_biolink">
-                            <i class="fa fa-fw fa-circle fa-sm mr-1" style="color: <?= $this->language->link->biolink->color ?>"></i>
-
-                            <?= $this->language->link->biolink->name ?>
-                        </a>
-
-
-                    </div>
-                </div>
-            <?php else: ?>
                 <button type="button" data-toggle="modal" data-target="#create_biolink" class="btn btn-primary rounded-pill">
                     <i class="fa fa-plus-circle"></i> <?= $this->language->project->links->create ?>
                 </button>
-            <?php endif ?>
         </div>
     </div>
 
@@ -49,7 +44,7 @@
             <div class="col-8 col-md-5">
                 <div class="d-flex flex-column">
            
-                    <a href="<?= url('link/' . $row->link_id) ?>" class="font-weight-bold"><?= $row->url ?></a>
+                    <a href="<?= url('link/' . $row->link_id) ."?tab=links" ?>" class="font-weight-bold"><?= $row->url ?></a>
                     <span class="d-flex align-items-center">
                         <span class="d-inline-block text-truncate">
                         <?php if(!empty($row->location_url)): ?>
@@ -64,14 +59,18 @@
                 </div>
             </div>
 
+            <div class="col d-none d-md-block">
+            </div>
+            <div class="col d-none d-md-block">
+            </div>
+            <div class="col-1 col-md-auto">
+            </div>
             <div class="col-2 d-flex justify-content-end col-md-auto">
                 <div class="dropdown">
                     <a href="#" data-toggle="dropdown" class="text-secondary dropdown-toggle dropdown-toggle-simple">
                         <i class="fa fa-ellipsis-v"></i>
 
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a href="<?= url('link/' . $row->link_id) ?>" class="dropdown-item"><i class="fa fa-fw fa-pencil-alt"></i> <?= $this->language->global->edit ?></a>
-  
                             <a href="#" class="dropdown-item" data-delete="<?= $this->language->global->info_message->confirm_delete ?>" data-row-id="<?= $row->link_id ?>"><i class="fa fa-fw fa-times"></i> <?= $this->language->global->delete ?></a>
 
                         </div>
