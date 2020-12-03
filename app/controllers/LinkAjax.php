@@ -134,77 +134,98 @@ class LinkAjax extends Controller {
         Response::json('', 'success', ['url' => url('link/' . $link_id). '?tab=links']);
     }
 
-    private function create_biolink_link() {
-
-        $_POST['link_id'] = (int) $_POST['link_id'];
-        $_POST['location_url'] = trim(Database::clean_string($_POST['location_url']));
-
-        $this->check_location_url($_POST['location_url']);
-
-        if(!$project_id = Database::simple_get('project_id', 'links', ['user_id' => 1, 'link_id' => $_POST['link_id'], 'type' => 'biolink', 'subtype' => 'base'])) {
-            die();
-        }
-
-        $max_order = Database::simple_get_max_order('order', 'links', ['user_id' => 1, 'biolink_id' => $_POST['link_id']], 'order');
-        $new_order = (int) $max_order + 1;
-
-        $url = string_generate(10);
-        $type = 'biolink';
-        $subtype = 'link';
-        $settings = json_encode([
-            'name' => $this->language->link->biolink->link->name_default,
-            'text_color' => 'black',
-            'background_color' => 'white',
-            'outline' => false,
-            'border_radius' => 'rounded',
-            'animation' => false,
-            'animation_duration' => '2s',
-            'icon' => ''
-        ]);
-
-        /* Generate random url if not specified */
-        while(Database::exists('link_id', 'links', ['url' => $url])) {
-            $url = string_generate(10);
-        }
-
-        $stmt = Database::$database->prepare("INSERT INTO `links` (`project_id`, `biolink_id`, `user_id`, `type`, `subtype`, `url`, `location_url`, `settings`, `order`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssssssssss', $project_id, $_POST['link_id'], 1, $type, $subtype, $url, $_POST['location_url'], $settings, $new_order, \Altum\Date::$date);
-        $stmt->execute();
-        $stmt->close();
-
-        Response::json('', 'success', ['url' => url('link/' . $_POST['link_id'] . '?tab=links')]);
-    }
-
     private function create_biolink_other($subtype) {
 
-        $_POST['link_id'] = (int) $_POST['link_id'];
-        $_POST['location_url'] = trim(Database::clean_string($_POST['location_url']));
-
-        $user_id = 1;
         $this->check_location_url($_POST['location_url']);
 
-        if(!$project_id = Database::simple_get('project_id', 'links', ['user_id' => 1, 'link_id' => $_POST['link_id'], 'type' => 'biolink', 'subtype' => 'base'])) {
-            die();
+        $ffmpeg = \FFMpeg\FFMpeg::create([
+            'ffmpeg.binaries'  => 'c:\ffmpeg\bin\ffmpeg.exe',
+            'ffprobe.binaries' => 'c:\ffmpeg\bin\ffprobe.exe' 
+        ]);
+        
+        $client_id = '095578219c5381b99319cdd1d90a5381f5a94a36';
+        $client_secret = '5wu6YqN1fyjXsx9dztqkaO0N9gXLDXaJz9UN3vM3Snaz+PqK+k3W7KLijpDs44wo3In2BC0iTXl1URo9OWtBP/RJC7seClGq/y8V2dFyECJ85vaicETWnuO+sGuO1UlH';
+        $access_token = '396fdb358bb95fcdad1c0b252cb1c5a7';
+
+        $client = new \Vimeo\Vimeo($client_id, $client_secret, $access_token);
+
+        $splitedResult = explode('/', $_POST['location_url']);
+        $video_id = end($splitedResult);
+
+        if(file_exists(ROOT_PATH . 'videos/' . 'result_' .$video_id)) {
+
+            $fileName = "result_" . $video_id .".mp4";
+        } else {
+            
+            $response = $client->request('/me/videos/'. $video_id, array(), 'GET');
+            $d_link = $response["body"]["download"][0]["link"];
+            $fileName = "result_" . $video_id .".mp4";
+    
+            $this->downloadFile($d_link, ROOT_PATH . "videos/" . $fileName);
         }
 
-        $max_order = Database::simple_get_max_order('order', 'links', ['user_id' => 1, 'biolink_id' => $_POST['link_id']], 'order');
-        $new_order = (int) $max_order + 1;
+        if(file_exists(ROOT_PATH . 'videos/' . $fileName)) {
 
-        $url = string_generate(10);
-        $type = 'biolink';
-        $settings = json_encode([]);
+            $video = $ffmpeg->open('videos/'. $fileName);
+            $startTime = intval($_POST["minute"]) * 60 + intval($_POST["second"]);
+            $duration = intval($_POST["duration"]);
+    
+            $video
+                ->filters()
+                ->synchronize();
+    
+            $format=new \FFMpeg\Format\Video\X264('libmp3lame', 'libx264'); 
+            $format->setAdditionalParameters( [ '-crf', '29' ] )->setKiloBitrate(500);
+    
+            $video->filters()->clip(\FFMpeg\Coordinate\TimeCode::fromSeconds($startTime), \FFMpeg\Coordinate\TimeCode::fromSeconds($duration));
+            $clippedFileName = "clip_" .$fileName;
+            $video->save($format, 'videos/' .$clippedFileName);
+            // unlink(ROOT_PATH . 'videos/' . $fileName);
+        }
 
-        /* Generate random url if not specified */
-        while(Database::exists('link_id', 'links', ['url' => $url])) {
+        if(file_exists(ROOT_PATH . 'videos/' . $clippedFileName)) {
+
+            $uri = $client->upload('videos/' . $clippedFileName, array(
+                "name" => "My Video",
+                "description" => "Awesome educational video."
+              ));
+              
+            $video_data = $client->request($uri . '?fields=link');
+            unlink(ROOT_PATH . 'videos/' . $clippedFileName);
+        }
+
+        if(isset($uri)) {
+            $splitedResult = explode('/', $uri);
+            $newVideoId = end($splitedResult);
+
+            $_POST['link_id'] = (int) $_POST['link_id'];
+            $_POST['location_url'] = "https://vimeo.com/" . $newVideoId;
+    
+            $user_id = 1;
+    
+            if(!$project_id = Database::simple_get('project_id', 'links', ['user_id' => 1, 'link_id' => $_POST['link_id'], 'type' => 'biolink', 'subtype' => 'base'])) {
+                die();
+            }
+    
+            $max_order = Database::simple_get_max_order('order', 'links', ['user_id' => 1, 'biolink_id' => $_POST['link_id']], 'order');
+            $new_order = (int) $max_order + 1;
+    
             $url = string_generate(10);
+            $type = 'biolink';
+            $settings = json_encode([]);
+    
+            /* Generate random url if not specified */
+            while(Database::exists('link_id', 'links', ['url' => $url])) {
+                $url = string_generate(10);
+            }
+    
+            $stmt = Database::$database->prepare("INSERT INTO `links` (`project_id`, `biolink_id`, `user_id`, `type`, `subtype`, `url`, `location_url`, `settings`, `order`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param('ssssssssss', $project_id, $_POST['link_id'], $user_id, $type, $subtype, $url, $_POST['location_url'], $settings, $new_order, \Altum\Date::$date);
+            $stmt->execute();
+            $stmt->close();
+    
+            Response::json('', 'success', ['url' => url('link/' . $_POST['link_id'] . '?tab=links')]);
         }
-
-        $stmt = Database::$database->prepare("INSERT INTO `links` (`project_id`, `biolink_id`, `user_id`, `type`, `subtype`, `url`, `location_url`, `settings`, `order`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssssssssss', $project_id, $_POST['link_id'], $user_id, $type, $subtype, $url, $_POST['location_url'], $settings, $new_order, \Altum\Date::$date);
-        $stmt->execute();
-        $stmt->close();
-
-        Response::json('', 'success', ['url' => url('link/' . $_POST['link_id'] . '?tab=links')]);
 
     }
 
@@ -273,4 +294,27 @@ class LinkAjax extends Controller {
 
 
     }
+
+    private function downloadFile($url, $fileName)
+    {
+        // set_time_limit(0);
+        // $ch = curl_init();
+        // curl_setopt($ch, CURLOPT_URL, $url);
+        // curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,0);
+        // curl_setopt($ch, CURLOPT_TIMEOUT, 3000);
+        // curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        // curl_setopt($ch, CURLOPT_HEADER, 0);
+        // curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        // $result = curl_exec($ch);
+        // file_put_contents($fileName, $result);
+        // curl_close($ch);
+
+        // var_dump($result);
+        // exit(1);
+
+        file_put_contents($fileName, file_get_contents($url));
+    }   
+
 }

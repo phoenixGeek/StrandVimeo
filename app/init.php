@@ -52,3 +52,5 @@ require_once APP_PATH . 'helpers/others.php';
 
 /* Autoload for vendor */
 require_once ROOT_PATH . 'vendor/autoload.php';
+require_once ROOT_PATH . 'vendor/ffmpeg/autoload.php';
+require_once ROOT_PATH . 'vendor/vimeo/autoload.php';

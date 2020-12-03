@@ -5,10 +5,8 @@
         <div class="row d-flex justify-content-center text-center">
             <div class="col-md-8 link-content">
 
-   
                 <header class="d-flex flex-column align-items-center" style="<?= $data->link->design->text_style ?>">
 
-                    <img id="image" src="<?= SITE_URL . UPLOADS_URL_PATH . 'avatars/' . $data->link->settings->image ?>" alt="<?= \Altum\Language::get()->link->biolink->image_alt ?>" class="link-image" <?= !empty($data->link->settings->image) && file_exists(UPLOADS_PATH . 'avatars/' . $data->link->settings->image) ? null : 'style="display: none;"' ?> />
                     <div class="d-flex flex-row align-items-center mt-4">
                         <h1 id="title"><?= $data->link->settings->title ?></h1>
                         <span id="switchTip1" style="display: none;" data-toggle="tooltip" title="<?= \Altum\Language::get()->global->verified ?>" class="link-verified ml-1"><i class="fa fa-fw fa-check-circle fa-1x"></i></span>
@@ -50,26 +48,6 @@
                             </div>
 
                         <?php endforeach ?>
-                    <?php endif ?>
-
-                    <?php if($data->user->package_settings->socials): ?>
-                        <div id="socials" class="d-flex flex-wrap justify-content-center mt-5">
-
-                            <?php $biolink_socials = require APP_PATH . 'includes/biolink_socials.php'; ?>
-
-                            <?php foreach($data->link->settings->socials as $key => $value): ?>
-                                <?php if($value): ?>
-
-                                <div class="mx-3 mb-3">
-                                    <a href="<?= sprintf($biolink_socials[$key]['format'], $value) ?>" target="_blank" data-toggle="tooltip" title="<?= \Altum\Language::get()->link->settings->socials->{$key}->name ?>">
-                                        <i class="<?= \Altum\Language::get()->link->settings->socials->{$key}->icon ?> fa-fw fa-2x" style="<?= $data->link->design->socials_style ?>"></i>
-                                    </a>
-                                </div>
-
-                                <?php endif ?>
-                            <?php endforeach ?>
-
-                        </div>
                     <?php endif ?>
 
                 </main>

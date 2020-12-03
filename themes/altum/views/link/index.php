@@ -18,11 +18,8 @@
 
         <div class="d-flex flex-column flex-md-row justify-content-between">
             <div class="d-flex align-items-center">
-                <?php if(!$data->link->active): ?>
-                    <h1 id="link_url" class="h3 mr-3"><?= sprintf($this->language->link->header->header, $data->link->templink) ?></h1>
-                <?php else: ?>
+
                     <h1 id="link_url" class="h3 mr-3"><?= sprintf($this->language->link->header->header, $data->link->url) ?></h1>
-                <?php endif ?>
 
                 <div class="dropdown">
                     <a href="#" data-toggle="dropdown" class="text-secondary dropdown-toggle dropdown-toggle-simple">
@@ -38,15 +35,15 @@
         <div class="d-flex align-items-baseline">
                     
             <span class="mr-3" data-toggle="tooltip" title="<?= $this->language->link->{$data->link->type}->name ?>">
-                <i class="fa fa-fw fa-circle fa-sm" style="display: <?= !$data->link->active? 'none;': 'block;' ?> color: <?= $this->language->link->{$data->link->type}->color ?>"></i>
+                <i class="fa fa-fw fa-circle fa-sm" style="display: block; color: <?= $this->language->link->{$data->link->type}->color ?>"></i>
             </span>
-            <div class="col-8 col-md-auto text-muted text-truncate" style="display: <?= !$data->link->active? 'none;': 'block;' ?>">
+            <div class="col-8 col-md-auto text-muted text-truncate" style="display:block;">
                 <?= sprintf($this->language->link->header->subheader, '<a id="link_full_url" href="' . $data->link->full_url . '" target="_blank">' . $data->link->full_url . '</a>') ?>
 
             </div>
 
             <button 
-                style="display: <?= !$data->link->active? 'none;': 'block;' ?>"
+                style="display: block;"
                 id="link_full_url_copy"
                 type="button"
                 class="btn btn-link"

@@ -27,8 +27,24 @@
                         <input type="text" class="form-control" name="location_url" required="required" placeholder="<?= $this->language->create_biolink_vimeo_modal->input->location_url_placeholder ?>" />
                     </div>
 
+                    <div class="form-group">
+                        <label><i class="fas fa-clock mr-1"></i>Insert start time</label>
+                        <input type="number" class="form-control" name="minute" required="required" placeholder="Tap minute" />
+                        <br />
+                        <input type="number" class="form-control" name="second" required="required" placeholder="Tap second" />
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-clock mr-1"></i>Insert duration time</label>
+                        <input type="number" class="form-control" name="duration" required="required" placeholder="Tap duration seconds" />
+                    </div>
+
                     <div class="text-center mt-4">
                         <button type="submit" name="submit" class="btn btn-primary"><?= $this->language->create_biolink_vimeo_modal->input->submit ?></button>
+                    </div>
+
+                    <div class="spinner-border text-info" role="status">
+                        <span class="sr-only">Loading...</span>
                     </div>
                 </form>
             </div>
@@ -37,10 +53,11 @@
     </div>
 </div>
 
-
 <?php ob_start() ?>
 <script>
     $('form[name="create_biolink_vimeo"]').on('submit', event => {
+
+        $('.spinner-border').css('display', 'block');
 
         $.ajax({
             type: 'POST',
@@ -58,6 +75,8 @@
                 }
 
                 else if(data.status == 'success') {
+
+                    $('.spinner-border').css('display', 'none');
 
                     /* Fade out refresh */
                     fade_out_redirect({ url: data.details.url, full: true });

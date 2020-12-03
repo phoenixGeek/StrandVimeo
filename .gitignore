@@ -10,4 +10,5 @@ dbs
 
 
 vendor/*
+videos/*
 # !vendor/Google.php

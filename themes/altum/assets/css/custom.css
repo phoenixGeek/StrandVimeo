@@ -1646,3 +1646,13 @@ h1, .h1 {
 	border: none;
 	text-decoration: none
 }
+
+.spinner-border {
+	display: none;
+    text-align: center;
+    align-items: center;
+    margin-left: 12.5em;
+    z-index: 10000;
+    position: absolute;
+	margin-top: -14em;
+}
