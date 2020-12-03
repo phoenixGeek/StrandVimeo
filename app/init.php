@@ -35,11 +35,7 @@ require_once APP_PATH . 'core/Title.php';
 require_once APP_PATH . 'core/Database.php';
 
 /* Load the models */
-require_once APP_PATH . 'models/Package.php';
-require_once APP_PATH . 'models/Page.php';
 require_once APP_PATH . 'models/User.php';
-require_once APP_PATH . 'models/Settings.php';
-require_once APP_PATH . 'models/Domain.php';
 
 /* Load some helpers */
 require_once APP_PATH . 'helpers/ThemeStyle.php';

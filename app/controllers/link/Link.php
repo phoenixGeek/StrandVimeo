@@ -14,12 +14,10 @@ class Link extends Controller {
     
     public $link;
     public $user;
-    public $is_qr;
 
     public function index() {
 
         $link_url = isset($this->params[0]) ? Database::clean_string($this->params[0]) : false;
-        $this->is_qr = isset($this->params[1]) && $this->params[1] == 'qr' ? Database::clean_string($this->params[1]) : false;
         $link_id = isset($_GET['link_id']) ? (int) $_GET['link_id'] : false;
 
         /* Check if the current link accessed is actually the original url or not ( multi domain use ) */
@@ -36,18 +34,6 @@ class Link extends Controller {
                 $this->link = Database::get('*', 'links', ['url' => $link_url, 'is_enabled' => 1, 'domain_id' => 0]);
             }
 
-        } else {
-            $this->link = $this->database->query("
-                SELECT `links`.*, `domains`.`host`, `domains`.`scheme`
-                FROM `links`
-                LEFT JOIN `domains` ON `links`.`domain_id` = `domains`.`domain_id`
-                WHERE
-                    `links`.`url` = '{$link_url}' AND 
-                    `links`.`is_enabled` = 1 AND 
-                    `domains`.`host` = '{$request_url_host}' AND 
-                    (`links`.`user_id` = `domains`.`user_id` OR `domains`.`type` = 1)
-                ORDER BY `order` ASC
-            ")->fetch_object() ?? null;
         }
 
         if(!$this->link) {
@@ -75,18 +61,6 @@ class Link extends Controller {
 
         /* Determine the actual full url */
         $this->link->full_url = $this->link->domain_id && !isset($_GET['link_id']) ? $this->link->scheme . $this->link->host . '/' . $this->link->url : url($this->link->url);
-
-        /* If is QR code only return a QR code */
-        if($this->is_qr) {
-
-            $qr = new \Endroid\QrCode\QrCode($this->link->full_url);
-
-            header('Content-Type: ' . $qr->getContentType());
-
-            echo $qr->writeString();
-
-            die();
-        }
 
         /* Only parse and add statistics if its not coming from inside the preview iframe from the settings */
         if(!isset($_GET['preview'])) {

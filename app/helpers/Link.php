@@ -12,29 +12,9 @@ class Link {
         $link->design->background_class = '';
         $link->design->background_style = '';
 
-        /* Check if the user has the access needed from the package */
-        if(!$user->package_settings->custom_backgrounds && in_array($link->settings->background_type, ['image', 'gradient', 'color'])) {
-
-            /* Revert to a default if no access */
-            $link->settings->background_type = 'preset';
-            $link->settings->background = 'one';
-
-        }
 
         switch($link->settings->background_type) {
-
-            case 'image':
-
-                $link->design->background_style = 'background: url(\'' . SITE_URL . UPLOADS_URL_PATH . 'backgrounds/' . $link->settings->background . '\');';
-
-                break;
-
-            case 'gradient':
-
-                $link->design->background_style = 'background-image: linear-gradient(135deg, ' . $link->settings->background->color_one . ' 10%, ' . $link->settings->background->color_two . ' 100%);';
-
-                break;
-
+            
             case 'color':
 
                 $link->design->background_style = 'background: ' . $link->settings->background . ';';

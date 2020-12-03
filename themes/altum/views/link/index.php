@@ -34,7 +34,6 @@
                 </div>
             </div>
         </div>
-
         
         <div class="d-flex align-items-baseline">
                     
@@ -105,7 +104,7 @@
 
     $("#link_full_url_copy").on('click', event => {
         
-        toastr.success('Linkinbio Url is copied to clipboard');
+        toastr.success('Url is copied to clipboard');
     })
 </script>
 <?php \Altum\Event::add_content(ob_get_clean(), 'javascript') ?>

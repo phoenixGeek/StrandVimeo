@@ -52,15 +52,11 @@ class Link extends Controller {
                     }
                 }
 
-                /* Get the available domains to use */
-                $domains = "minibio.link";
-
                 /* Prepare variables for the view */
                 $data = [
                     'link'                      => $this->link,
                     'method'                    => $method,
                     'link_links_result'         => $link_links_result ?? null,
-                    'domains'                   => $domains
                 ];
 
                 break;

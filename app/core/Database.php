@@ -102,7 +102,6 @@ class Database {
         foreach($conditions as $key => $value) $where[] = '`' . $key . '` = \'' . $value . '\'';
         $where = implode(' AND ', $where);
 
-
         $result = self::$database->query("SELECT {$what} FROM {$from} WHERE {$where}");
 
         return ($result->num_rows) ? $result->num_rows : false;
@@ -120,7 +119,6 @@ class Database {
 
         foreach($conditions as $key => $value) $where[] = '`' . $key . '` = \'' . $value . '\'';
         $where = implode(' AND ', $where);
-
 
         return self::$database->query("UPDATE {$what} SET {$parameters} WHERE {$where}");
 
